@@ -82,6 +82,7 @@ def train_model(
         if (batch_idx) % perma_save == 0:
             state = model.state_dict()
             torch.save(state, f"{perma_save_folder_path}/batch_{batch_idx}.pt")
+            cleanup_checkpoints(perma_save_folder_path)
 
     # eval one test batch every 10 batches
         if (batch_idx) % batch_per_save == 0:

@@ -3,29 +3,29 @@ import sys
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
+DATA_path = os.path.abspath(os.path.join(project_root, '../DATA'))
 
 from model.transformer.classic_transformer import ClassicTransformer
 import torch.nn as nn
 import torch
 
-
 from utils.unstructured_text_dataset import TransformerDataset
-from usb import usb_path
-usb_path = usb_path()
+
+
 
 train_dataset = TransformerDataset(
-    path=os.path.join(usb_path, "webtext/train.bin"),
-    input_len=64,
-    output_len=64,
-    stride=128,
+    path=os.path.join(DATA_path, "train_part_aa.bin"),
+    input_len=128,
+    output_len=128,
+    stride=256,
     dtype=torch.int32
 )
 
 test_dataset = TransformerDataset(
-    path=os.path.join(usb_path, "webtext/test.bin"),
-    input_len=64,
-    output_len=64,
-    stride=128,
+    path=os.path.join(DATA_path, "test.bin"),
+    input_len=128,
+    output_len=128,
+    stride=256,
     dtype=torch.int32)
 
 print(f"Train dataset length: {len(train_dataset)}")
@@ -49,7 +49,7 @@ model = ClassicTransformer(
     num_encoders = 8,
     num_decoders = 8,
     d_ff = 4096,
-    loss_fn = nn.CrossEntropyLoss(ignore_index=0),
+    loss_fn = nn.CrossEntropyLoss(ignore_index=0, reduction = "mean"),
     max_seq_len = 10000,
     pad_id = 0,
     sos_id = 1,
@@ -74,11 +74,13 @@ train_model(
     test_dataset=test_dataset,
     model=model,
     optimizer=torch.optim.Adam(model.parameters(), lr=0.0001),
-    batch_size=1,
+    batch_size=8,
     save_folder_path=os.path.join(project_root, "checkpoints"),
     perma_save_folder_path=os.path.join(project_root, "checkpoints/perma"),
     loss_fn=nn.CrossEntropyLoss(ignore_index=0),
     tokenizer=tokenizer,
-    batch_per_save=20,
+    batch_per_save=100,
     clip_grad_norm = 5
 )
+
+
