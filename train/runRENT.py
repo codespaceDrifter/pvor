@@ -14,7 +14,7 @@ from utils.unstructured_text_dataset import TransformerDataset
 
 
 train_dataset = TransformerDataset(
-    path=os.path.join(DATA_path, "train_part_aa.bin"),
+    path=os.path.join(DATA_path, "train.bin"),
     input_len=128,
     output_len=128,
     stride=256,

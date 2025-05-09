@@ -110,7 +110,7 @@ class ClassicTransformer(nn.Module):
         tgt = tgt.clone()
         tgt[tgt == self.unk_id] = self.pad_id
 
-        assert tgt.max().item() < self.vocab_size and tgt.min() >= 0,, "tgt out of range"
+        assert tgt.max().item() < self.vocab_size and tgt.min() >= 0, "tgt out of range"
 
         '''
         Cross-Entropy Derivation (from softmax to logit form):
