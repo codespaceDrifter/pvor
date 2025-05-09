@@ -22,7 +22,7 @@ class ClassicTransformer(nn.Module):
                  sos_id = 1,
                  eos_id = 2,
                  unk_id = 3,
-                 dropout=0.1):
+                 dropout=0.1,):
         super().__init__()
         
         self.loss_fn = loss_fn
@@ -30,6 +30,7 @@ class ClassicTransformer(nn.Module):
         self.sos_id = sos_id
         self.eos_id = eos_id
         self.unk_id = unk_id
+        self.vocab_size = vocab_size
 
         self.embedding = nn.Embedding(vocab_size, d_model, padding_idx=pad_id)
         self.pos_encode = PositionalEncoding(d_model, max_seq_len)
@@ -80,9 +81,10 @@ class ClassicTransformer(nn.Module):
         for encoder in self.encoders:
             src = encoder(src, src_pad_mask)
 
-
         for decoder in self.decoders:
             tgt = decoder(tgt, src, tgt_combined_mask, src_pad_mask)
+
+
 
             
         # Convert back to vocabulary size
@@ -90,7 +92,14 @@ class ClassicTransformer(nn.Module):
         return output
     
     def compute_loss(self, src, tgt):
+        assert torch.isfinite(src).all(), "NaN in src"
+        assert torch.isfinite(tgt).all(), "NaN in tgt"
+        
         outputs = self.forward(src, tgt)
+
+        assert torch.isfinite(outputs).all(), "NaN in output"
+         
+                
         outputs = outputs[:, :-1]
         #(batch, vocab,seq_len)
         outputs = outputs.permute(0, 2, 1)
@@ -100,7 +109,9 @@ class ClassicTransformer(nn.Module):
         #use .clone() to not modify original version other wise autograd gets broken
         tgt = tgt.clone()
         tgt[tgt == self.unk_id] = self.pad_id
-        
+
+        assert tgt.max().item() < self.vocab_size and tgt.min() >= 0,, "tgt out of range"
+
         '''
         Cross-Entropy Derivation (from softmax to logit form):
         For the true class y:
@@ -111,9 +122,10 @@ class ClassicTransformer(nn.Module):
         CE = -log(e^{z_y} / sum_j e^{z_j})
         CE = -z_y + log(sum_j e^{z_j})
         '''
-
         
         loss = self.loss_fn(outputs, tgt[:, 1:].long())
+
+        assert torch.isfinite(loss).all(), "NaN in loss"
         
         return loss
 

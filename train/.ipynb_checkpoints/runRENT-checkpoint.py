@@ -22,7 +22,7 @@ train_dataset = TransformerDataset(
 )
 
 test_dataset = TransformerDataset(
-    path=os.path.join(DATA_path, "test.bin"),
+    path=os.path.join(DATA_path, "test.bin"), 
     input_len=128,
     output_len=128,
     stride=256,

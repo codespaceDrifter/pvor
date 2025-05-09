@@ -36,11 +36,12 @@ def train_model(
     loss_fn,
     tokenizer = None,
     batch_per_save = 10,
-    clip_grad_norm = 2.0
+    clip_grad_norm = 2.0,
+    debug = False
 ):
     # to debug
     # ! COMMENT THIS OUT IN ACTUAL TRAINING. MAKES IT 2 TIMES SLOWER
-    #torch.autograd.set_detect_anomaly(True)
+    if debug == True: torch.autograd.set_detect_anomaly(True)
 
 
     #mix precision training
@@ -77,6 +78,9 @@ def train_model(
         #mixed precision about a 30% speed up
         with autocast():
             loss = model.compute_loss(inputs,targets)
+            assert torch.isfinite(loss).all(), f"Loss is not finite: {loss.item()}"
+
+            if debug == True: print ("loss", loss.item())
 
         scaler.scale(loss).backward()
 
@@ -85,7 +89,7 @@ def train_model(
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=clip_grad_norm)
         
         scaler.step(optimizer)
-        scaler.update()
+        scaler.update() 
 
         for param in model.parameters():
             param.data.clamp_(-10, 10)
