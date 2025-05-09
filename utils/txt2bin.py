@@ -1,5 +1,6 @@
 import torch
 import os
+import re
 
 import os
 import json
@@ -10,6 +11,34 @@ sys.path.append(projectRoot)
 
 from tokenization.tokenizer import Tokenizer
 from usb import usb_path
+
+
+
+def normalize_unicode_punctuation(text):
+    replacements = {
+        '‘': "'",  # left single quote
+        '’': "'",  # right single quote
+        '“': '"',  # left double quote
+        '”': '"',  # right double quote
+        '–': '-',  # en dash
+        '—': '-',  # em dash
+        '…': '...',  # ellipsis
+        '•': '*',  # bullet
+        '´': "'",  # acute accent used as apostrophe
+        '″': '"',  # double prime
+        '‹': '<', '›': '>',  # angle quotes
+        '«': '<<', '»': '>>',
+    }
+
+    # Replace each unicode char with its ascii equivalent
+    for uni, ascii_rep in replacements.items():
+        text = text.replace(uni, ascii_rep)
+
+    # Optional: remove any leftover weird control characters
+    text = re.sub(r'[^\x00-\x7F]+', '', text)
+
+    return text
+
 
 
 def tokenize_to_dataset(tokenizer: Tokenizer,
@@ -44,6 +73,7 @@ def tokenize_to_dataset(tokenizer: Tokenizer,
         
         for line in in_file:
             line = line.strip()
+            line = normalize_unicode_punctuation(line)
 
             if not line:
                 continue
@@ -51,6 +81,7 @@ def tokenize_to_dataset(tokenizer: Tokenizer,
             if processed_lines < start_line:
                 processed_lines += 1
                 continue
+
                 
             # Process single line
             ids = tokenizer.encode(line, add_SOS=False, add_EOS=False).tolist()
@@ -75,7 +106,7 @@ def tokenize_to_dataset(tokenizer: Tokenizer,
 
 
 
-tokenizer = Tokenizer(os.path.join(projectRoot, "tokenizer/assets/token_to_id.json"))
+tokenizer = Tokenizer(os.path.join(projectRoot, "tokenization/assets/token_to_id.json"))
 input_path = os.path.join(usb_path(), "webtext", "openwebtext.txt")
 train_path = os.path.join(usb_path(), "webtext", "train.bin")
 test_path= os.path.join(usb_path(), "webtext", "test.bin")
