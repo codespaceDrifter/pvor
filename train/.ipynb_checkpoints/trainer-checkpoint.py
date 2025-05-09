@@ -77,6 +77,7 @@ def train_model(
         #mixed precision about a 30% speed up
         with autocast():
             loss = model.compute_loss(inputs,targets)
+
         scaler.scale(loss).backward()
 
         #unscales. i.e. divide by 1024 which scale multipled by 1024. to clip grad norm. if delete this line, scaler.step will also unscale
@@ -85,6 +86,9 @@ def train_model(
         
         scaler.step(optimizer)
         scaler.update()
+
+        for param in model.parameters():
+            param.data.clamp_(-10, 10)
         
 
         

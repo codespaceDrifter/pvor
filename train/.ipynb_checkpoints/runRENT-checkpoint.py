@@ -75,12 +75,12 @@ train_model(
     test_dataset=test_dataset,
     model=model,
     optimizer=torch.optim.Adam(model.parameters(), lr=0.0001),
-    batch_size=64,
+    batch_size=48,
     save_folder_path=os.path.join(project_root, "checkpoints"),
     perma_save_folder_path=os.path.join(project_root, "checkpoints/perma"),
     loss_fn=nn.CrossEntropyLoss(ignore_index=0),
     tokenizer=tokenizer,
-    batch_per_save=1000,
+    batch_per_save=500,
     clip_grad_norm = 5
 )
 
