@@ -48,7 +48,7 @@ def train_model(
 
     model.cuda()
     # Create data loaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 8)
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=True)
     
     
@@ -57,11 +57,6 @@ def train_model(
     
     # Try to load latest checkpoint and get last batch
     last_batch = load_latest_checkpoint(save_folder_path, model)
-
-
-
-
-    
 
     batch_idx = last_batch
 
