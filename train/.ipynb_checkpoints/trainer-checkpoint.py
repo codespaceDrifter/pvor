@@ -58,6 +58,11 @@ def train_model(
     # Try to load latest checkpoint and get last batch
     last_batch = load_latest_checkpoint(save_folder_path, model)
 
+
+
+
+    
+
     batch_idx = last_batch
 
     perma_save = max (batch_per_save * 10, 500)
