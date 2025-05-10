@@ -14,7 +14,7 @@ from utils.unstructured_text_dataset import TransformerDataset
 
 
 train_dataset = TransformerDataset(
-    path=os.path.join(DATA_path, "train_part_aa.bin"),
+    path=os.path.join(DATA_path, "train.bin"),
     input_len=128,
     output_len=128,
     stride=256,
@@ -74,14 +74,15 @@ train_model(
     train_dataset=train_dataset,
     test_dataset=test_dataset,
     model=model,
-    optimizer=torch.optim.Adam(model.parameters(), lr=0.0001),
+    optimizer=torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay = 0.01),
     batch_size=48,
     save_folder_path=os.path.join(project_root, "checkpoints"),
     perma_save_folder_path=os.path.join(project_root, "checkpoints/perma"),
     loss_fn=nn.CrossEntropyLoss(ignore_index=0),
     tokenizer=tokenizer,
     batch_per_save=500,
-    clip_grad_norm = 5
+    clip_grad_norm = 1,
+    debug = False
 )
 
 

@@ -78,7 +78,7 @@ def train_model(
         #mixed precision about a 30% speed up
         with autocast():
             loss = model.compute_loss(inputs,targets)
-            assert torch.isfinite(loss).all(), f"Loss is not finite: {loss.item()}"
+            assert torch.isfinite(loss).all(), f"Loss is not finite: {loss.item()}" 
 
             if debug == True: print ("loss", loss.item())
 
@@ -86,13 +86,22 @@ def train_model(
 
         #unscales. i.e. divide by 1024 which scale multipled by 1024. to clip grad norm. if delete this line, scaler.step will also unscale
         scaler.unscale_(optimizer)
+
+        if debug == True:
+            total_norm = torch.norm(torch.stack([
+                    param.grad.norm(2)
+                    for param in model.parameters()
+                    if param.grad is not None
+                ]), 2)
+            print(f"Total gradient norm: {total_norm.item():.4f}")
+        
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=clip_grad_norm)
         
         scaler.step(optimizer)
         scaler.update() 
 
         for param in model.parameters():
-            param.data.clamp_(-10, 10)
+            param.data.clamp_(-100, 100)
         
 
         
