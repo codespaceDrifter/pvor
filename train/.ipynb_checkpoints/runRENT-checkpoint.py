@@ -74,7 +74,7 @@ train_model(
     train_dataset=train_dataset,
     test_dataset=test_dataset,
     model=model,
-    optimizer=torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay = 0.01),
+    optimizer=torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay = 0.0001),
     batch_size=48,
     save_folder_path=os.path.join(project_root, "checkpoints"),
     perma_save_folder_path=os.path.join(project_root, "checkpoints/perma"),
